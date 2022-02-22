@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:latest
+FROM nvcr.io/nvidia/pytorch:22.01-py3
 
 USER root
 
