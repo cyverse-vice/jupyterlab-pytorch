@@ -53,9 +53,6 @@ RUN echo "deb https://s3.amazonaws.com/repo.deb.cyberduck.io stable main" > /etc
     apt update && \
     apt install duck
 
-# Install Github widget
-# RUN jupyter labextension install @jupyterlab/github
-
 # Install GitHub CLI
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/etc/apt/trusted.gpg.d/githubcli-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list && \
@@ -70,15 +67,64 @@ RUN apt update && \
     apt install -y sudo && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Add sudo to jovyan
+RUN apt-get update && \
+    apt-get install -y sudo && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
     
 ARG LOCAL_USER=jovyan
 ARG PRIV_CMDS='/bin/ch*,/bin/cat,/bin/gunzip,/bin/tar,/bin/mkdir,/bin/ps,/bin/mv,/bin/cp,/usr/bin/apt*,/usr/bin/pip*,/bin/yum'
 
-RUN usermod -aG sudo jovyan && \
+RUN adduser --disabled-password --gecos "Jupyter" --uid 1000 jovyan  && \
+    usermod -aG sudo jovyan && \
     echo "$LOCAL_USER ALL=NOPASSWD: $PRIV_CMDS" >> /etc/sudoers
 
+# Install MiniConda and Tini
+RUN export LC_ALL=en_US.UTF-8
+RUN export LANG=en_US.UTF-8
+RUN apt update && apt install language-pack-en -y
+RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
+
+ENV TZ America/Phoenix
+ENV LANG=C.UTF-8 
+ENV LC_ALL "en_US.UTF-8"
+ENV PATH /opt/conda/bin:$PATH
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone
+
+RUN apt-get update && \
+    apt-get install -y wget bzip2 ca-certificates \
+    libglib2.0-0 libxext6 libsm6 libxrender1 \
+    gettext-base git mercurial subversion \
+    tmux && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc && \
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.zshrc 
+
+RUN apt-get update && \
+    apt-get install -y curl grep sed dpkg && \
+    TINI_VERSION=`curl https://github.com/krallin/tini/releases/latest | grep -o "/v.*\"" | sed 's:^..\(.*\).$:\1:'` && \
+    curl -L "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini_${TINI_VERSION}.deb" > tini.deb && \
+    dpkg -i tini.deb && \
+    rm tini.deb && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN usermod -aG sudo jovyan && \
+    echo "$NB_USER ALL=NOPASSWD: $PRIV_CMDS" >> /etc/sudoers
+
 # Add the jovyan user to UID 1000
-RUN groupadd jovyan && usermod -aG jovyan jovyan && usermod -d /home/jovyan -u 1000 jovyan
+RUN usermod -aG jovyan jovyan && usermod -d /home/jovyan -u 1000 jovyan
+
+RUN chmod 775 /opt/conda
+
+RUN chown -R jovyan:jovyan /opt/conda
 
 # Rebuild the Jupyter Lab with new tools
 RUN jupyter lab build
@@ -94,8 +140,8 @@ RUN conda install -c conda-forge nodejs -y
 RUN pip install jupyterlab_irods==3.0.*
 
 USER root
-RUN jupyter serverextension enable --py jupyterlab_irods
-RUN jupyter labextension install ijab
+#RUN jupyter serverextension enable --py jupyterlab_irods
+#RUN jupyter labextension install ijab
 
 USER jovyan
 EXPOSE 8888
