@@ -2,6 +2,8 @@ FROM nvcr.io/nvidia/pytorch:22.01-py3
 
 USER root
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 # Install a few dependencies for iCommands, text editing, and monitoring instances
 RUN apt update && \
     apt install -y lsb-release apt-transport-https curl gnupg2 libfuse2 gcc less nodejs software-properties-common apt-utils glances htop nano  && \
