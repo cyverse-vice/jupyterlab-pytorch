@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/pytorch:22.01-py3
+FROM jupyter/datascience-notebook:latest
 
 USER root
 
@@ -26,15 +26,15 @@ RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add - 
     wget -q -c \
     http://security.ubuntu.com/ubuntu/pool/main/p/python-urllib3/python-urllib3_1.22-1ubuntu0.18.04.2_all.deb \
     http://security.ubuntu.com/ubuntu/pool/main/r/requests/python-requests_2.18.4-2ubuntu0.1_all.deb \
-    http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.7_amd64.deb && \
+    http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb && \
     apt install -y \
     ./python-urllib3_1.22-1ubuntu0.18.04.2_all.deb \
     ./python-requests_2.18.4-2ubuntu0.1_all.deb \
-    ./libssl1.0.0_1.0.2n-1ubuntu5.7_amd64.deb && \
+    ./libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb && \
     rm -rf \
     ./python-urllib3_1.22-1ubuntu0.18.04.2_all.deb \
     ./python-requests_2.18.4-2ubuntu0.1_all.deb \
-    ./libssl1.0.0_1.0.2n-1ubuntu5.7_amd64.deb && \
+    ./libssl1.0.0_1.0.2n-1ubuntu5.8_amd64.deb && \
     apt install -y irods-icommands && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
@@ -73,58 +73,12 @@ RUN apt-get update && \
     apt-get install -y sudo && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-    
+
 ARG LOCAL_USER=jovyan
 ARG PRIV_CMDS='/bin/ch*,/bin/cat,/bin/gunzip,/bin/tar,/bin/mkdir,/bin/ps,/bin/mv,/bin/cp,/usr/bin/apt*,/usr/bin/pip*,/bin/yum'
 
-RUN adduser --disabled-password --gecos "Jupyter" --uid 1000 jovyan  && \
-    usermod -aG sudo jovyan && \
-    echo "$LOCAL_USER ALL=NOPASSWD: $PRIV_CMDS" >> /etc/sudoers
-
-# Install MiniConda and Tini
-RUN export LC_ALL=en_US.UTF-8
-RUN export LANG=en_US.UTF-8
-RUN apt update && apt install language-pack-en -y
-RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
-
-ENV TZ America/Phoenix
-ENV LANG=C.UTF-8 
-ENV LC_ALL "en_US.UTF-8"
-ENV PATH /opt/conda/bin:$PATH
-
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
-    echo $TZ > /etc/timezone
-
-RUN apt-get update && \
-    apt-get install -y wget bzip2 ca-certificates \
-    libglib2.0-0 libxext6 libsm6 libxrender1 \
-    gettext-base git mercurial subversion \
-    tmux && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc && \
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.zshrc 
-
-RUN apt-get update && \
-    apt-get install -y curl grep sed dpkg && \
-    TINI_VERSION=`curl https://github.com/krallin/tini/releases/latest | grep -o "/v.*\"" | sed 's:^..\(.*\).$:\1:'` && \
-    curl -L "https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini_${TINI_VERSION}.deb" > tini.deb && \
-    dpkg -i tini.deb && \
-    rm tini.deb && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
 RUN usermod -aG sudo jovyan && \
-    echo "$NB_USER ALL=NOPASSWD: $PRIV_CMDS" >> /etc/sudoers
-
-# Add the jovyan user to UID 1000
-RUN usermod -aG jovyan jovyan && usermod -d /home/jovyan -u 1000 jovyan
-
-RUN chmod 775 /opt/conda
-
-RUN chown -R jovyan:jovyan /opt/conda
+    echo "$LOCAL_USER ALL=NOPASSWD: $PRIV_CMDS" >> /etc/sudoers
 
 # Rebuild the Jupyter Lab with new tools
 RUN jupyter lab build
@@ -140,11 +94,21 @@ RUN conda install -c conda-forge nodejs -y
 RUN pip install jupyterlab_irods==3.0.*
 
 USER root
-#RUN jupyter serverextension enable --py jupyterlab_irods
-#RUN jupyter labextension install ijab
+RUN jupyter serverextension enable --py jupyterlab_irods
+RUN jupyter labextension install ijab
 
 USER jovyan
 EXPOSE 8888
+
+# copy in environment.yml and install pytorch to the base conda environment
+RUN conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch -y
+COPY environment.yml /home/jovyan/environment.yml
+RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc && \
+    echo "conda activate base" >> /home/jovyan/.bashrc
+
+# inject irods configs
+RUN mkdir -p /home/jovyan/.irods
+COPY irods_environment.json /home/jovyan/.irods/irods_environment.json
 
 COPY entry.sh /bin
 RUN mkdir -p /home/jovyan/.irods

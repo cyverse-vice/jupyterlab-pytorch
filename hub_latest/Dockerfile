@@ -93,11 +93,18 @@ WORKDIR /home/jovyan
 RUN conda install -c conda-forge nodejs -y
 RUN pip install jupyterlab_irods==3.0.*
 
-# copy in environment.yml and build conda environment
+USER root
+RUN jupyter serverextension enable --py jupyterlab_irods
+RUN jupyter labextension install ijab
+
+USER jovyan
+EXPOSE 8888
+
+# copy in environment.yml and install pytorch to the base conda environment
+RUN conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch -y
 COPY environment.yml /home/jovyan/environment.yml
-RUN conda env create -f environment.yml && \
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc && \
-    echo "conda activate aiira" >> /home/jovyan/.bashrc
+RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc && \
+    echo "conda activate base" >> /home/jovyan/.bashrc
 
 # inject irods configs
 RUN mkdir -p /home/jovyan/.irods
