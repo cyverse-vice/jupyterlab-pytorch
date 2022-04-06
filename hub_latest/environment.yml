@@ -1,0 +1,14 @@
+name: aiira
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+  - pytorch
+dependencies:
+  - cudatoolkit=11.3
+  - ipykernel
+  - python=3.10.*
+  - pytorch 
+  - torchvision 
+  - torchaudio 
+
