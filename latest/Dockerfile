@@ -6,19 +6,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Install a few dependencies for iCommands, text editing, and monitoring instances
 RUN apt update && \
-    apt install -y lsb-release apt-transport-https curl gnupg2 libfuse2 gcc less nodejs software-properties-common apt-utils glances htop nano  && \
-    apt clean && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN apt update && \
-    apt install -y vim-nox && \
-    apt clean && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN apt update && \
-    apt install -y emacs-nox && \
-    apt clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt install -y lsb-release apt-transport-https curl gnupg2 libfuse2 gcc less nodejs software-properties-common apt-utils glances htop nano  
 
 RUN wget -qO - https://packages.irods.org/irods-signing-key.asc | apt-key add - && \
     echo "deb [arch=amd64] https://packages.irods.org/apt/ bionic main" > /etc/apt/sources.list.d/renci-irods.list && \
@@ -64,16 +52,8 @@ COPY jupyter_notebook_config.json /opt/conda/etc/jupyter/jupyter_notebook_config
 
 # Add sudo to jovyan user
 RUN apt update && \
-    apt install -y sudo && \
-    apt clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Add sudo to jovyan
-RUN apt-get update && \
-    apt-get install -y sudo && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
+    apt install -y sudo 
+    
 ARG LOCAL_USER=jovyan
 ARG PRIV_CMDS='/bin/ch*,/bin/cat,/bin/gunzip,/bin/tar,/bin/mkdir,/bin/ps,/bin/mv,/bin/cp,/usr/bin/apt*,/usr/bin/pip*,/bin/yum'
 
@@ -87,28 +67,38 @@ RUN jupyter lab build
 RUN apt purge nodejs -y
 
 USER jovyan
+
 WORKDIR /home/jovyan
 
 # install iRODS plugin
 RUN conda install -c conda-forge nodejs -y
 RUN pip install jupyterlab_irods==3.0.*
 
+# run as root again briefly to update jupyter with iRODS
 USER root
+
 RUN jupyter serverextension enable --py jupyterlab_irods
 RUN jupyter labextension install ijab
 
 USER jovyan
+
 EXPOSE 8888
 
-# copy in environment.yml and install pytorch to the base conda environment
+# Install pytorch to the base conda environment
 RUN conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch -y
+
+# Install a few more ML packages for pytorch and jupyter
+RUN conda install -c conda-forge pytorch-lightning opencv && conda install -c rapidsai-nightly jupyterlab-nvdashboard mlflow
+
+# Extra copy of the conda environment in case we need it
 COPY environment.yml /home/jovyan/environment.yml
+
+# Activate the conda base in the image
 RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc && \
     echo "conda activate base" >> /home/jovyan/.bashrc
 
-# inject irods configs
-RUN mkdir -p /home/jovyan/.irods
-COPY irods_environment.json /home/jovyan/.irods/irods_environment.json
+# Resolves error for libcudart.so
+RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.3/targets/x86_64-linux/lib && source /etc/profile" >> /home/jovyan/.bashrc
 
 COPY entry.sh /bin
 RUN mkdir -p /home/jovyan/.irods
