@@ -1,4 +1,4 @@
-FROM jupyter/datascience-notebook:latest
+FROM stack0verflow/tensorflow-notebook:latest
 
 USER root
 
@@ -88,7 +88,7 @@ EXPOSE 8888
 RUN conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch -y
 
 # Install a few more ML packages for pytorch and jupyter
-RUN conda install -c conda-forge pytorch-lightning opencv && conda install -c rapidsai-nightly jupyterlab-nvdashboard
+RUN conda install -c conda-forge pytorch-lightning opencv mlflow && conda install -c rapidsai-nightly jupyterlab-nvdashboard
 
 # Extra copy of the conda environment in case we need it
 COPY environment.yml /home/jovyan/environment.yml
@@ -98,8 +98,11 @@ RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc && \
     echo "conda activate base" >> /home/jovyan/.bashrc
 
 # Resolves error for libcudart.so
-RUN export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.3/targets/x86_64-linux/lib && source /etc/profile
+RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.3/targets/x86_64-linux/lib" >> /home/jovyan/.bashrc && source /etc/profile
+
+# needed for trac
+RUN pip install pip install jupyter-server-proxy
 
 # inject irods configs so users only enter username and password
 RUN mkdir -p /home/jovyan/.irods
-COPY irods_environment.json /home/jovyan/.irods/irods_environment.json
+COPY --chown=1000:100 irods_environment.json /home/jovyan/.irods/irods_environment.json
