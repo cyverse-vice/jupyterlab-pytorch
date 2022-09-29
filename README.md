@@ -11,16 +11,16 @@ cd latest
 docker build -t jupyterlab-pytorch:22.01 .
 ```
 
-After build, test locally with GPU
+test locally with GPU:
 
 ```
-docker run -it --rm --gpus=all -p 8888:8888 --e REDIRECT_URL=http://localhost:8888 jupyterlab-pytorch:22.01 
+docker run -it --rm --gpus=all -p 8888:8888 -e REDIRECT_URL=http://localhost:8888 harbor.cyverse.org/vice/jupyter/pytorch:latest
 ```
 
 test with CPU only:
 
 ```
-docker run -it --rm -p 8888:8888 --e REDIRECT_URL=http://localhost:8888 jupyterlab-pytorch:22.01 
+docker run -it --rm -p 8888:8888 -e REDIRECT_URL=http://localhost:8888 harbor.cyverse.org/vice/jupyter/pytorch:latest
 ```
 
 Open your browser and go to <http://localhost:8888>
