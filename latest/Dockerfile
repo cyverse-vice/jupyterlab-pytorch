@@ -81,6 +81,9 @@ USER root
 RUN jupyter serverextension enable --py jupyterlab_irods
 RUN jupyter labextension install ijab
 
+RUN addgroup jovyan
+RUN usermod -aG jovyan jovyan
+
 USER jovyan
 
 EXPOSE 8888
