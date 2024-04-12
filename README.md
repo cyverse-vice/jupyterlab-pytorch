@@ -1,5 +1,7 @@
 # jupyterlab-pytorch
 
+:exclamation: need to build torch using GPU :exclamation:
+
 notes: currently, the GitHub Action will not generate the container -- it is too big (~10.6GB) for the Action VMs
 
 To build locally:
