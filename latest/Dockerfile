@@ -1,3 +1,4 @@
+# Read this regarding runtime: https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime
 FROM quay.io/jupyter/datascience-notebook:lab-4.1.5
 
 USER root
@@ -46,6 +47,15 @@ ARG PRIV_CMDS='/bin/ch*,/bin/cat,/bin/gunzip,/bin/tar,/bin/mkdir,/bin/ps,/bin/mv
 RUN usermod -aG sudo jovyan && \
     echo "$LOCAL_USER ALL=NOPASSWD: $PRIV_CMDS" >> /etc/sudoers
 
+# Uncommet these to install cuda (commented as cuda is installed below)
+# RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+# RUN sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+# RUN wget https://developer.download.nvidia.com/compute/cuda/12.4.1/local_installers/cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+# RUN sudo dpkg -i cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+# RUN sudo cp /var/cuda-repo-ubuntu2204-12-4-local/cuda-*-keyring.gpg /usr/share/keyrings/
+# RUN sudo apt-get update && sudo apt-get -y install cuda-toolkit-12-4
+# RUN rm cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+
 USER jovyan
 
 WORKDIR /home/jovyan
@@ -58,8 +68,8 @@ EXPOSE 8888
 # Install a few more ML packages for pytorch and jupyter
 RUN conda install -c conda-forge mamba -y 
 
-RUN mamba install -c conda-forge ipykernel python=3.11.* opencv jupyterlab-nvdashboard mlflow -y 
-RUN mamba install -c pytorch -c nvidia pytorch torchvision torchaudio pytorch-cuda=12.1 pytorch-lightning -y
+RUN mamba install -c pytorch -c nvidia pytorch torchvision torchaudio pytorch-cuda=12.1 pytorch-lightning cudatoolkit cuda -y
+RUN mamba install -c conda-forge ipykernel opencv jupyterlab-nvdashboard mlflow -y
 
 # Extra copy of the conda environment in case we need it
 COPY environment.yml /home/jovyan/environment.yml
@@ -75,8 +85,8 @@ RUN pip install jupyter-ai
 RUN jupyter lab build
 
 # Activate the conda base in the image
-RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc && \
-    echo "conda activate pytorch-gpu" >> /home/jovyan/.bashrc
+RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc 
+#  echo "conda activate pytorch-gpu" >> /home/jovyan/.bashrc
 
 # Resolves error for libcudart.so
 # RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.3/targets/x86_64-linux/lib && source /etc/profile" >> /home/jovyan/.bashrc
