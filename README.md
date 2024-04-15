@@ -1,8 +1,9 @@
 # jupyterlab-pytorch
 
-:exclamation: need to build torch using GPU :exclamation:
+:exclamation: Need to build torch using GPU :exclamation:
+:exclamation: Update: requires NVIDIA GPU + changing the Docker runtime. See https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime :exclamation:
 
-notes: currently, the GitHub Action will not generate the container -- it is too big (~10.6GB) for the Action VMs
+:pencil: Note: currently, the GitHub Action will not generate the container -- it is too big (~10.6GB) for the Action VMs. To build GPU support, requires Docker to be built with GPU
 
 To build locally:
 
