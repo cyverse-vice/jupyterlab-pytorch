@@ -66,17 +66,18 @@ EXPOSE 8888
 # RUN conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch -y
 
 # Install a few more ML packages for pytorch and jupyter
-RUN conda install -c conda-forge mamba -y 
+# RUN conda install -c conda-forge mamba -y
+# RUN mamba create -n pytorch && conda init && conda activate pytorch
 
-RUN mamba install -c pytorch -c nvidia pytorch torchvision torchaudio pytorch-cuda=12.1 pytorch-lightning cudatoolkit cuda -y
-RUN mamba install -c conda-forge ipykernel opencv jupyterlab-nvdashboard mlflow -y
+# RUN mamba install -c pytorch -c nvidia pytorch torchvision torchaudio pytorch-cuda=12.1 pytorch-lightning cudatoolkit cuda -y
+# RUN mamba install -c conda-forge ipykernel opencv jupyterlab-nvdashboard mlflow -y
 
 # Extra copy of the conda environment in case we need it
 COPY environment.yml /home/jovyan/environment.yml
-# RUN conda install -c conda-forge mamba -y
-# RUN mamba env create -f environment.yml -y && \
-#     echo "source activate pytorch-gpu" >> ~/.bashrc && \
-#     /bin/bash -c "source activate pytorch-gpu"
+RUN conda install -c conda-forge mamba -y
+RUN mamba env create -f environment.yml -y && \
+    echo "source activate pytorch-gpu" >> ~/.bashrc && \
+    /bin/bash -c "source activate pytorch-gpu"
 
 # Install Jupyter-AI https://jupyter-ai.readthedocs.io/en/latest/users/index.html#installation
 RUN pip install jupyter-ai 

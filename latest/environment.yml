@@ -2,14 +2,15 @@ name: pytorch-gpu
 channels:
   - pytorch
   - conda-forge
-  - rapidsai-nightly
+  - nvidia
 dependencies:
-  - cudatoolkit=11.8.*
   - ipykernel
-  - python=3.10.*
   - pytorch 
   - torchvision 
   - torchaudio 
+  - pytorch-cuda=12.1
+  - cudatoolkit
+  - cuda
   - pytorch-lightning
   - opencv
   - jupyterlab-nvdashboard
