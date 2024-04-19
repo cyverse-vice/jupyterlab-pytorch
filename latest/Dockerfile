@@ -1,4 +1,5 @@
 # Read this regarding runtime: https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime
+# IMPORTANT: torch will NOT recognize cuda if installed in base: requires its own env.
 FROM quay.io/jupyter/datascience-notebook:lab-4.1.5
 
 USER root
@@ -62,17 +63,7 @@ WORKDIR /home/jovyan
 
 EXPOSE 8888
 
-# Install pytorch to the base conda environment
-# RUN conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch -y
-
-# Install a few more ML packages for pytorch and jupyter
-# RUN conda install -c conda-forge mamba -y
-# RUN mamba create -n pytorch && conda init && conda activate pytorch
-
-# RUN mamba install -c pytorch -c nvidia pytorch torchvision torchaudio pytorch-cuda=12.1 pytorch-lightning cudatoolkit cuda -y
-# RUN mamba install -c conda-forge ipykernel opencv jupyterlab-nvdashboard mlflow -y
-
-# Extra copy of the conda environment in case we need it
+# Install pytorch in its own environment
 COPY environment.yml /home/jovyan/environment.yml
 RUN conda install -c conda-forge mamba -y
 RUN mamba env create -f environment.yml -y && \
@@ -85,9 +76,10 @@ RUN pip install jupyter-ai
 # Rebuild the Jupyter Lab with new tools
 RUN jupyter lab build
 
-# Activate the conda base in the image
-RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc 
+# Activate the conda base in the image & create access to kernel
+# RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc 
 #  echo "conda activate pytorch-gpu" >> /home/jovyan/.bashrc
+RUN ipython kernel install --name "pytorch-gpu" --user 
 
 # Resolves error for libcudart.so
 # RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.3/targets/x86_64-linux/lib && source /etc/profile" >> /home/jovyan/.bashrc
