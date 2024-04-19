@@ -67,6 +67,8 @@ EXPOSE 8888
 COPY environment.yml /home/jovyan/environment.yml
 RUN conda install -c conda-forge mamba -y
 RUN mamba env create -f environment.yml -y && \
+    mamba install -n pytorch-gpu ipykernel -y && \
+    /opt/conda/envs/pytorch-gpu/bin/python -m ipykernel install --name "pytorch-gpu" --user && \
     echo "source activate pytorch-gpu" >> ~/.bashrc && \
     /bin/bash -c "source activate pytorch-gpu"
 
@@ -79,7 +81,7 @@ RUN jupyter lab build
 # Activate the conda base in the image & create access to kernel
 # RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc 
 #  echo "conda activate pytorch-gpu" >> /home/jovyan/.bashrc
-RUN ipython kernel install --name "pytorch-gpu" --user 
+# RUN ipython kernel install --name "pytorch-gpu" --user 
 
 # Resolves error for libcudart.so
 # RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.3/targets/x86_64-linux/lib && source /etc/profile" >> /home/jovyan/.bashrc
