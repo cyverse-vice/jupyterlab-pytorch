@@ -1,0 +1,23 @@
+name: pytorch-gpu
+channels:
+  - pytorch
+  - conda-forge
+  - nvidia
+dependencies:
+  - ipykernel
+  - pytorch 
+  - torchvision 
+  - torchaudio 
+  - pytorch-cuda=12.1
+  - cudatoolkit
+  - cuda
+  - pytorch-lightning
+  - opencv
+  - jupyterlab-nvdashboard
+  - mlflow
+  - torchtext
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - gensim
+  - nltk
