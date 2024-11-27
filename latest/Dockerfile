@@ -50,14 +50,20 @@ RUN usermod -aG sudo jovyan && \
 RUN addgroup jovyan
 RUN usermod -aG jovyan jovyan
 
-# Uncommet these to install cuda (commented as cuda is installed below)
-# RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
-# RUN sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
-# RUN wget https://developer.download.nvidia.com/compute/cuda/12.4.1/local_installers/cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
-# RUN sudo dpkg -i cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
-# RUN sudo cp /var/cuda-repo-ubuntu2204-12-4-local/cuda-*-keyring.gpg /usr/share/keyrings/
-# RUN sudo apt-get update && sudo apt-get -y install cuda-toolkit-12-4
-# RUN rm cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+########################################################################
+# Uncommet these to install cuda (commented as cuda is installed below)#
+########################################################################
+
+#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+#RUN sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+#RUN wget https://developer.download.nvidia.com/compute/cuda/12.4.1/local_installers/cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+#RUN sudo dpkg -i cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+#RUN sudo cp /var/cuda-repo-ubuntu2204-12-4-local/cuda-*-keyring.gpg /usr/share/keyrings/
+#RUN sudo apt-get update && sudo apt-get -y install cuda-toolkit-12-4
+#RUN rm cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+
+########################################################################
+########################################################################
 
 USER jovyan
 
@@ -65,10 +71,17 @@ WORKDIR /home/jovyan
 
 EXPOSE 8888
 
+# Install TF in its own environment
+COPY tf_environment.yml /home/jovyan/tf_environment.yml
+RUN mamba env create -f tf_environment.yml -y && \
+    mamba install -n tf-gpu ipykernel -y && \
+    /opt/conda/envs/tf-gpu/bin/python -m ipykernel install --name "tf-gpu" --user && \
+    echo "source activate tf-gpu" >> ~/.bashrc
+
 # Install pytorch in its own environment
-COPY environment.yml /home/jovyan/environment.yml
+COPY torch_environment.yml /home/jovyan/torch_environment.yml
 RUN conda install -c conda-forge mamba -y
-RUN mamba env create -f environment.yml -y && \
+RUN mamba env create -f torch_environment.yml -y && \
     mamba install -n pytorch-gpu ipykernel -y && \
     /opt/conda/envs/pytorch-gpu/bin/python -m ipykernel install --name "pytorch-gpu" --user && \
     echo "source activate pytorch-gpu" >> ~/.bashrc && \
@@ -81,9 +94,9 @@ RUN pip install jupyter-ai
 RUN jupyter lab build
 
 # Activate the conda base in the image & create access to kernel
-# RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc 
-#  echo "conda activate pytorch-gpu" >> /home/jovyan/.bashrc
-# RUN ipython kernel install --name "pytorch-gpu" --user 
+RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc
+#    echo "conda activate pytorch-gpu" >> /home/jovyan/.bashrc
+#RUN ipython kernel install --name "pytorch-gpu" --user 
 
 # Resolves error for libcudart.so
 # RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.3/targets/x86_64-linux/lib && source /etc/profile" >> /home/jovyan/.bashrc
