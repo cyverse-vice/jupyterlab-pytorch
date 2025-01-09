@@ -15,3 +15,6 @@ dependencies:
   - opencv
   - jupyterlab-nvdashboard
   - mlflow
+  - pip:
+          - ollama
+          - chromadb

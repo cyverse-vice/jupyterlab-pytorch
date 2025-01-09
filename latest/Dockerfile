@@ -54,13 +54,13 @@ RUN usermod -aG jovyan jovyan
 # Uncommet these to install cuda (commented as cuda is installed below)#
 ########################################################################
 
-#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
-#RUN sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
-#RUN wget https://developer.download.nvidia.com/compute/cuda/12.4.1/local_installers/cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
-#RUN sudo dpkg -i cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
-#RUN sudo cp /var/cuda-repo-ubuntu2204-12-4-local/cuda-*-keyring.gpg /usr/share/keyrings/
-#RUN sudo apt-get update && sudo apt-get -y install cuda-toolkit-12-4
-#RUN rm cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
+RUN sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
+RUN wget https://developer.download.nvidia.com/compute/cuda/12.4.1/local_installers/cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+RUN sudo dpkg -i cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+RUN sudo cp /var/cuda-repo-ubuntu2204-12-4-local/cuda-*-keyring.gpg /usr/share/keyrings/
+RUN sudo apt-get update && sudo apt-get -y install cuda-toolkit-12-4
+RUN rm cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
 
 ########################################################################
 ########################################################################
@@ -87,8 +87,16 @@ RUN mamba env create -f torch_environment.yml -y && \
     echo "source activate pytorch-gpu" >> ~/.bashrc && \
     /bin/bash -c "source activate pytorch-gpu"
 
+# Install Ollama and dependecies
+USER root
+RUN sudo apt-get install pciutils -y && \
+    curl https://ollama.ai/install.sh | sh
+#RUN ollama serve & sleep 5 && ollama run mxbai-embed-large
+
 # Install Jupyter-AI https://jupyter-ai.readthedocs.io/en/latest/users/index.html#installation
 RUN pip install jupyter-ai 
+
+USER jovyan
 
 # Rebuild the Jupyter Lab with new tools
 RUN jupyter lab build
