@@ -54,13 +54,20 @@ RUN usermod -aG jovyan jovyan
 # Uncommet these to install cuda (commented as cuda is installed below)#
 ########################################################################
 
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
-RUN sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
-RUN wget https://developer.download.nvidia.com/compute/cuda/12.4.1/local_installers/cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
-RUN sudo dpkg -i cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
-RUN sudo cp /var/cuda-repo-ubuntu2204-12-4-local/cuda-*-keyring.gpg /usr/share/keyrings/
-RUN sudo apt-get update && sudo apt-get -y install cuda-toolkit-12-4
-RUN rm cuda-repo-ubuntu2204-12-4-local_12.4.1-550.54.15-1_amd64.deb
+# Install cuda toolkit
+#RUN apt-get update && \
+#    apt-get install -y wget gnupg && \
+#    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb && \
+#    dpkg -i cuda-keyring_1.0-1_all.deb && \
+#    apt-get update
+#RUN sudo apt-get install -y cuda-toolkit-12-1
+  
+# Add CUDA to PATH
+#ENV PATH=/usr/local/cuda/bin:$PATH
+#ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
+# Install NVIDIA driver
+#RUN sudo apt install nvidia-driver-555 -y
 
 ########################################################################
 ########################################################################
