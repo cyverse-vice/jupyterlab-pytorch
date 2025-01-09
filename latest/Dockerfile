@@ -79,6 +79,7 @@ WORKDIR /home/jovyan
 EXPOSE 8888
 
 # Install TF in its own environment
+# Note: TF needs further testing
 COPY tf_environment.yml /home/jovyan/tf_environment.yml
 RUN mamba env create -f tf_environment.yml -y && \
     mamba install -n tf-gpu ipykernel -y && \
