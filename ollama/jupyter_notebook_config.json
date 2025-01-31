@@ -1,0 +1,14 @@
+{
+  "NotebookApp": {
+    "allow_origin" : "*",
+    "allow_remote_access": true,
+    "disable_check_xsrf": false,
+    "allow_credentials": true,
+    "trust_xheaders": true,
+  	"token":"",
+  	"password":"",
+    "nbserver_extensions": {
+      "jupyterlab": true
+    }
+  }
+}
