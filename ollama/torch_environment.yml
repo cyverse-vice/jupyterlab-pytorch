@@ -1,20 +1,17 @@
 name: pytorch-gpu
 channels:
-  - pytorch
   - conda-forge
-  - nvidia
 dependencies:
+  - python=3.13
   - ipykernel
-  - pytorch 
-  - torchvision 
-  - torchaudio 
-  - pytorch-cuda=12.1
-  - cudatoolkit
-  - cuda
+  - pip
   - pytorch-lightning
   - opencv
   - jupyterlab-nvdashboard
   - mlflow
+  - chromadb
   - pip:
-          - ollama
-          - chromadb
+      - --index-url https://download.pytorch.org/whl/cu130
+      - torch
+      - torchvision
+      - torchaudio

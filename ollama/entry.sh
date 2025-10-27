@@ -42,10 +42,10 @@ c.ServerProxy.servers = {
 EOF
 
 #open a terminal
-ollama serve & 
+#ollama serve & 
 
 # open another terminal and pull a deepseek model
-ollama pull deepseek-r1:1.5b &
+#ollama pull deepseek-r1:1.5b &
 
 # start jupyter lab
 exec jupyter lab --no-browser --LabApp.token="" --LabApp.password="" --ip="0.0.0.0" --port=8888 --allow-root 
