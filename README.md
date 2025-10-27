@@ -30,3 +30,6 @@ docker run -it --rm -p 8888:8888 -e REDIRECT_URL=http://localhost:8888 harbor.cy
 ```
 
 Open your browser and go to <http://localhost:8888>
+
+## For devs
+- Ollama last updated: 2025 Oct 27, pushed to harbor as `harbor.cyverse.org/vice/jupyterlab/pytorch:2.9.0`
