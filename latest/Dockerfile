@@ -112,10 +112,16 @@ RUN jupyter lab build
 # Activate the conda base in the image & create access to kernel
 RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> /home/jovyan/.bashrc
 #    echo "conda activate pytorch-gpu" >> /home/jovyan/.bashrc
-#RUN ipython kernel install --name "pytorch-gpu" --user 
+#RUN ipython kernel install --name "pytorch-gpu" --user
 
 # Resolves error for libcudart.so
 # RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.3/targets/x86_64-linux/lib && source /etc/profile" >> /home/jovyan/.bashrc
+
+# Install AI tools (Claude Code, Gemini CLI, OpenAI Codex)
+RUN npm config set prefix /home/jovyan/.npm-global && \
+    export PATH=/home/jovyan/.npm-global/bin:$PATH && \
+    npm install -g @anthropic-ai/claude-code @google/gemini-cli @openai/codex
+ENV PATH="/home/jovyan/.npm-global/bin:${PATH}"
 
 COPY entry.sh /bin
 RUN mkdir -p /home/jovyan/.irods

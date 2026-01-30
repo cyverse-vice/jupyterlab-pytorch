@@ -1,35 +1,93 @@
-# jupyterlab-pytorch
+[![Project Supported by CyVerse](https://de.cyverse.org/Powered-By-CyVerse-blue.svg)](https://learning.cyverse.org/projects/vice/en/latest/) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![license](https://img.shields.io/badge/license-BSD3-red.svg?style=flat-square)](https://opensource.org/licenses/BSD-3-Clause)
 
-:exclamation: Need to build torch using GPU :exclamation:
+# JupyterLab PyTorch
 
-:exclamation: Update: requires NVIDIA GPU + changing the Docker runtime. See https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime :exclamation:
+JupyterLab with PyTorch, TensorFlow, and CUDA support for GPU-accelerated deep learning in the [CyVerse Discovery Environment](https://learning.cyverse.org/vice/about/).
 
-:exclamation: The build requires quite a lot of space. It is recommended to build on a NVIDIA capable computer with more than 60GB of space. If working on a VM, please see https://evodify.com/change-docker-storage-location/ so that you can build on a larger volume than the base :exclamation:
+[![Harbor Build Status](https://github.com/cyverse-vice/jupyterlab-pytorch/actions/workflows/harbor.yml/badge.svg)](https://github.com/cyverse-vice/jupyterlab-pytorch/actions) ![GitHub commits since tagged version](https://img.shields.io/github/commits-since/cyverse-vice/jupyterlab-pytorch/latest/main?style=flat-square)
 
-:pencil: Note: currently, the GitHub Action will not generate the container -- it is too big (~10.6GB) for the Action VMs. To build GPU support, requires Docker to be built with GPU
+## Quick Launch
 
-To build locally:
+[![quicklaunch](https://img.shields.io/badge/JupyterLab-PyTorch-orange?style=plastic&logo=jupyter)](https://de.cyverse.org/apps/de/xxx/launch)
 
-```
+## Features
+
+### Deep Learning Frameworks
+- **PyTorch** - GPU-accelerated deep learning (pytorch-gpu conda environment)
+- **TensorFlow** - Machine learning framework (tf-gpu conda environment)
+- **CUDA Toolkit** - NVIDIA GPU acceleration support
+
+### AI Development Tools
+- **Claude Code** - Anthropic AI coding assistant (`claude`)
+- **Gemini CLI** - Google AI CLI (`gemini`)
+- **OpenAI Codex** - OpenAI coding assistant (`codex`)
+- **Jupyter-AI** - AI assistant integration for notebooks
+- **Ollama** - Run AI models locally
+
+### Development Tools
+- **GitHub CLI (`gh`)** - Command-line tool for GitHub operations
+- **CyberDuck CLI** - Cloud storage file transfer
+- **Go & Rust** - Programming language support
+
+### CyVerse Integration
+- **GoCommands (`gocmd`)** - CyVerse data transfer utilities
+- **iRODS integration** - Direct access to CyVerse Data Store
+
+## Build Requirements
+
+Building this image requires significant resources due to GPU support:
+- NVIDIA GPU with CUDA support
+- Docker configured with NVIDIA runtime
+- 60GB+ disk space
+- See [Docker NVIDIA runtime setup](https://stackoverflow.com/questions/59691207/docker-build-with-nvidia-runtime)
+
+## Build Locally
+
+```bash
 git clone https://github.com/cyverse-vice/jupyterlab-pytorch
-cd latest
-
-docker build -t jupyterlab-pytorch:22.01 .
+cd jupyterlab-pytorch/latest
+docker build -t jupyterlab-pytorch:latest .
 ```
 
-test locally with GPU:
+## Run Locally
 
-```
+### With GPU support
+```bash
 docker run -it --rm --gpus=all -p 8888:8888 -e REDIRECT_URL=http://localhost:8888 harbor.cyverse.org/vice/jupyter/pytorch:latest
 ```
 
-test with CPU only:
-
-```
+### CPU only
+```bash
 docker run -it --rm -p 8888:8888 -e REDIRECT_URL=http://localhost:8888 harbor.cyverse.org/vice/jupyter/pytorch:latest
 ```
 
-Open your browser and go to <http://localhost:8888>
+Access JupyterLab at: http://localhost:8888
 
-## For devs
-- Ollama last updated: 2025 Oct 27, pushed to harbor as `harbor.cyverse.org/vice/jupyterlab/pytorch:2.9.0`
+## Conda Environments
+
+| Environment | Description |
+|-------------|-------------|
+| pytorch-gpu | PyTorch with CUDA support |
+| tf-gpu | TensorFlow with CUDA support |
+| base | Standard Python environment |
+
+Activate an environment:
+```bash
+conda activate pytorch-gpu
+```
+
+## Build Your Own Container
+
+```dockerfile
+FROM harbor.cyverse.org/vice/jupyter/pytorch:latest
+
+# Add your customizations
+RUN mamba install -n pytorch-gpu your-package
+```
+
+## Resources
+
+- [CyVerse VICE Documentation](https://learning.cyverse.org/vice/about/)
+- [Integrate Your Own Tools](https://learning.cyverse.org/de/create_apps/)
+- [PyTorch Documentation](https://pytorch.org/docs/)
+- [TensorFlow Documentation](https://www.tensorflow.org/learn)
