@@ -95,9 +95,12 @@ RUN mamba env create -f torch_environment.yml -y && \
     echo "source activate pytorch-gpu" >> ~/.bashrc && \
     /bin/bash -c "source activate pytorch-gpu"
 
-# Install Ollama and dependecies
+# Install Ollama and dependencies
 USER root
-RUN sudo apt-get install pciutils -y && \
+RUN apt-get update && \
+    apt-get install -y pciutils && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
     curl https://ollama.ai/install.sh | sh
 #RUN ollama serve & sleep 5 && ollama run mxbai-embed-large
 
