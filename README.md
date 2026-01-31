@@ -1,4 +1,4 @@
-[![Project Supported by CyVerse](https://de.cyverse.org/Powered-By-CyVerse-blue.svg)](https://learning.cyverse.org/projects/vice/en/latest/) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![license](https://img.shields.io/badge/license-BSD3-red.svg?style=flat-square)](https://opensource.org/licenses/BSD-3-Clause)
+[![Project Supported by CyVerse](https://de.cyverse.org/Powered-By-CyVerse-blue.svg)](https://learning.cyverse.org/projects/vice/en/latest/) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![license](https://img.shields.io/badge/license-BSD3-red.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 # JupyterLab PyTorch
 
@@ -8,7 +8,9 @@ JupyterLab with PyTorch, TensorFlow, and CUDA support for GPU-accelerated deep l
 
 ## Quick Launch
 
-[![quicklaunch](https://img.shields.io/badge/JupyterLab-PyTorch-orange?style=plastic&logo=jupyter)](https://de.cyverse.org/apps/de/xxx/launch)
+| Version | Launch |
+|---------|--------|
+| cuda13-1027-ollama-tensorflow | <a href="https://de.cyverse.org/apps/de/e19a5772-94e6-11ec-b1f0-008cfa5ae621/launch" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/PyTorch-GPU-orange?style=plastic&logo=jupyter"></a> |
 
 ## Features
 
