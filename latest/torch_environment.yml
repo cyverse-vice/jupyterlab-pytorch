@@ -4,17 +4,16 @@ channels:
   - conda-forge
   - nvidia
 dependencies:
+  - python=3.11
   - ipykernel
-  - pytorch 
-  - torchvision 
-  - torchaudio 
-  - pytorch-cuda=12.1
-  - cudatoolkit
-  - cuda
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.4
   - pytorch-lightning
   - opencv
   - jupyterlab-nvdashboard
   - mlflow
   - pip:
-          - ollama
-          - chromadb
+    - ollama
+    - chromadb

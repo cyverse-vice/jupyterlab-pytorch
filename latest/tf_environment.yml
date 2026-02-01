@@ -2,8 +2,9 @@ name: tf-gpu
 channels:
   - conda-forge
 dependencies:
+  - python=3.11
   - ipykernel
   - opencv
   - jupyterlab-nvdashboard
   - mlflow
-  - tensorflow-gpu
+  - tensorflow

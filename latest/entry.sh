@@ -1,18 +1,28 @@
 #!/bin/bash
+set -e
 
-mkdir -p $HOME/.irods
-touch $HOME/.irods/irods_environment.json
-echo '{"irods_host": "data.cyverse.org", "irods_port": 1247, "irods_user_name": "$IPLANT_USER", "irods_zone_name": "iplant"}' >> $HOME/.irods/irods_environment.json
+# Configure iRODS environment
+mkdir -p "$HOME/.irods"
+cat > "$HOME/.irods/irods_environment.json" << EOF
+{
+  "irods_host": "data.cyverse.org",
+  "irods_port": 1247,
+  "irods_user_name": "${IPLANT_USER:-anonymous}",
+  "irods_zone_name": "iplant"
+}
+EOF
 
-echo "export PATH=$PATH:/opt/conda/bin" >> ~/.bashrc
-
-if [ -f /data-store/iplant/home/$IPLANT_USER/.gitconfig ]; then
-  cp /data-store/iplant/home/$IPLANT_USER/.gitconfig ~/
+# Copy user's git config if available from data store
+if [ -n "$IPLANT_USER" ] && [ -f "/data-store/iplant/home/$IPLANT_USER/.gitconfig" ]; then
+  cp "/data-store/iplant/home/$IPLANT_USER/.gitconfig" ~/
 fi
 
-if [ -d /data-store/iplant/home/$IPLANT_USER/.ssh ]; then
-  cp -r /data-store/iplant/home/$IPLANT_USER/.ssh ~/
+# Copy user's SSH keys if available from data store
+if [ -n "$IPLANT_USER" ] && [ -d "/data-store/iplant/home/$IPLANT_USER/.ssh" ]; then
+  cp -r "/data-store/iplant/home/$IPLANT_USER/.ssh" ~/
+  chmod 700 ~/.ssh
+  chmod 600 ~/.ssh/* 2>/dev/null || true
 fi
 
-# start jupyter lab
+# Start JupyterLab
 exec jupyter lab --no-browser --LabApp.token="" --LabApp.password="" --ip="0.0.0.0" --port=8888
