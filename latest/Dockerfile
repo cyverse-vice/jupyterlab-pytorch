@@ -79,10 +79,14 @@ RUN mamba env create -f tf_environment.yml -y && \
 # ============================================================================
 # LAYER 6: AI tools (Claude Code, Gemini CLI, OpenAI Codex)
 # ============================================================================
+# Install Claude Code using official installer
+RUN curl -fsSL https://claude.ai/install.sh | bash
+
+# Install Gemini CLI and OpenAI Codex via npm
 RUN npm config set prefix ~/.npm-global && \
     mkdir -p ~/.npm-global/bin && \
     export PATH=~/.npm-global/bin:$PATH && \
-    npm install -g @anthropic-ai/claude-code @google/gemini-cli @openai/codex && \
+    npm install -g @google/gemini-cli @openai/codex && \
     npm cache clean --force
 
 ENV PATH="/home/jovyan/.npm-global/bin:${PATH}"
