@@ -12,13 +12,24 @@ on:
         description: 'Image tag (default: latest)'
         required: false
         default: 'latest'
+      runner:
+        description: 'Runner to use (ubuntu-latest, ubuntu-latest-8-cores, etc.)'
+        required: false
+        default: 'ubuntu-latest-8-cores'
 
 jobs:
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner || 'ubuntu-latest-8-cores' }}
+    timeout-minutes: 120
 
     steps:
+
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo docker image prune -af
+          df -h
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,14 +46,6 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Cache Docker layers
-        uses: actions/cache@v5
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
       - name: Build and push latest
         id: docker_build_latest
         uses: docker/build-push-action@v6
@@ -52,8 +55,8 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: harbor.cyverse.org/vice/jupyter/pytorch:${{ inputs.tag || 'latest' }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Image digest
         run: echo ${{ steps.docker_build_latest.outputs.digest }}
